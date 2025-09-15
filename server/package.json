@@ -1,0 +1,36 @@
+{
+  "name": "budgeto",
+  "version": "1.0.0",
+  "description": "A simple application to help you manage your finances",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gbibek34/budgeto.git"
+  },
+  "keywords": [
+    "budget",
+    "finance",
+    "financial",
+    "freedom"
+  ],
+  "author": "gbibek34",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gbibek34/budgeto/issues"
+  },
+  "homepage": "https://github.com/gbibek34/budgeto#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.2",
+    "express": "^5.1.0",
+    "mongoose": "^8.15.1",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
+  }
+}
