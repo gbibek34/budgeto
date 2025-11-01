@@ -9,19 +9,10 @@ const {
 
 const router = express.Router();
 
-// Get all accounts for a user (expects user_id in query)
-router.get("/", getAccounts);
-
-// Get a single account by account_id
-router.get("/:id", getAccountById);
-
-// Create a new account
-router.post("/", createAccount);
-
-// Update an account by account_id
-router.put("/:id", updateAccount);
-
-// Delete an account by account_id
-router.delete("/:id", deleteAccount);
+router.get("/", getAccounts); // Get all accounts for a user (expects user_id in query)
+router.get("/:account_id", getAccountById); // Get a single account by account_id
+router.post("/", createAccount); // Create a new account
+router.put("/:account_id", updateAccount); // Update an account by account_id
+router.delete("/:account_id", deleteAccount); // Delete an account by account_id
 
 module.exports = router;

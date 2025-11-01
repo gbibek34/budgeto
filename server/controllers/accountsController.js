@@ -53,6 +53,7 @@ const getAccountById = async (req, res) => {
 const updateAccount = async (req, res) => {
     const { account_id } = req.params;
     const { name, account_type, balance } = req.body;
+    console.log(account_id)
     try {
         const result = await pool.query(
             `UPDATE accounts SET name = $1, account_type = $2, balance = $3
@@ -87,4 +88,10 @@ const deleteAccount = async (req, res) => {
     }
 };
 
-module.exports = { getAccounts, createAccount, getAccountById, updateAccount, deleteAccount }
+module.exports = {
+    getAccounts,
+    createAccount,
+    getAccountById,
+    updateAccount,
+    deleteAccount
+}

@@ -11,7 +11,11 @@ const categoriesRoutes = require("./routes/categories")
 const transactionsRoutes = require("./routes/transactions")
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: "http://localhost:5173", // change to your front-end origin
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"]
+}));
 app.use(express.json());
 
 app.use("/api/users", usersRoutes);

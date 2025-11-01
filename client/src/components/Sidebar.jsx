@@ -2,12 +2,13 @@ import { NavLink } from "react-router-dom";
 import { FiX } from "react-icons/fi";
 
 const navLinks = [
-    { to: "/dashboard", label: "Overview", icon: "🏠", end: true },
+    { to: "/", label: "Home", icon: "🏠" },
+    { to: "/dashboard", label: "Overview", icon: "🖥️", end: true },
     { to: "/dashboard/accounts", label: "Accounts", icon: "💳" },
     { to: "/dashboard/categories", label: "Category", icon: "🌿" },
     { to: "/dashboard/transactions", label: "Transactions", icon: "💸" },
     { to: "/dashboard/budgets", label: "Budgets", icon: "📊" },
-    { to: "/dashboard/goals", label: "Saving Goals", icon: "🎯" },
+    { to: "/dashboard/goals", label: "Saving Goals", icon: "🎯" }
     // Add more links as needed
 ];
 

@@ -1,5 +1,4 @@
 const express = require("express");
-const router = express.Router();
 const {
     createTransaction,
     getTransactions,
@@ -8,19 +7,12 @@ const {
     deleteTransaction
 } = require("../controllers/transactionsController");
 
-// Create a new transaction
-router.post("/", createTransaction);
+const router = express.Router();
 
-// Get all transactions for a user (expects user_id in query)
-router.get("/", getTransactions);
-
-// Get a transaction by ID
-router.get("/:transaction_id", getTransactionById);
-
-// Update a transaction
-router.put("/:transaction_id", updateTransaction);
-
-// Delete a transaction
-router.delete("/:transaction_id", deleteTransaction);
+router.post("/", createTransaction); // Create a new transaction
+router.get("/", getTransactions); // Get all transactions for a user (expects user_id in query)
+router.get("/:transaction_id", getTransactionById); // Get a transaction by ID
+router.put("/:transaction_id", updateTransaction); // Update a transaction
+router.delete("/:transaction_id", deleteTransaction); // Delete a transaction
 
 module.exports = router;
