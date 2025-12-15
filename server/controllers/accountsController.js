@@ -1,17 +1,50 @@
 const pool = require("../db");
+const prisma = require("../prismaexp")
 
 // Create a new account
+// const createAccount = async (req, res) => {
+//     const { user_id, name, account_type, balance } = req.body;
+//     if (!user_id || !name || !account_type) {
+//         return res.status(400).json({ error: "Missing required fields" });
+//     }
+//     try {
+//         const result = await pool.query(
+//             `INSERT INTO accounts (user_id, name, account_type, balance, created_at)
+//              VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
+//             [user_id, name, account_type, balance]
+//         );
+//         res.json(result.rows[0]);
+//     } catch (err) {
+//         console.error(err.message);
+//         res.status(500).json({ error: "Server error" });
+//     }
+// };
+
+console.log(Object.keys(prisma));
+// console.log(prisma);
 const createAccount = async (req, res) => {
     const { user_id, name, account_type, balance } = req.body;
+
+    // Basic validation
+    if (!user_id || !name || !account_type) {
+        return res.status(400).json({ error: "Missing required fields" });
+    }
+
     try {
-        const result = await pool.query(
-            `INSERT INTO accounts (user_id, name, account_type, balance, created_at)
-             VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
-            [user_id, name, account_type, balance]
-        );
-        res.json(result.rows[0]);
+        const account = await prisma.accounts.create({
+            data: {
+                user_id,
+                name,
+                account_type,
+                // balance is optional in your schema
+                ...(balance !== undefined && { balance }),
+                // created_at is auto-handled by Prisma
+            },
+        });
+
+        res.status(201).json(account);
     } catch (err) {
-        console.error(err.message);
+        console.error("Create account error:", err);
         res.status(500).json({ error: "Server error" });
     }
 };

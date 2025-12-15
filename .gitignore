@@ -7,6 +7,7 @@ client/dist/
 client/.vite/
 server/dist/
 server/build/
+server/generated/prisma
 
 # Logs
 *.log
@@ -38,3 +39,5 @@ coverage/
 
 # Misc
 *.cache
+#Ignores root assets folder
+/assets/ 

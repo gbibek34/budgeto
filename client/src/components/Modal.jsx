@@ -1,4 +1,3 @@
-// ...existing code...
 import { AnimatePresence, motion } from "framer-motion";
 
 const Modal = ({ isOpen, onClose, title, children, width = "max-w-md" }) => {
@@ -14,7 +13,7 @@ const Modal = ({ isOpen, onClose, title, children, width = "max-w-md" }) => {
                 >
                     {/* Modal Content */}
                     <motion.div
-                        className={`rounded-2xl shadow-xl p-6 w-full ${width} relative`}
+                        className={`bg-white rounded-2xl shadow-xl p-6 w-full ${width} relative`}
                         initial={{ y: 50, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         exit={{ y: 50, opacity: 0 }}
