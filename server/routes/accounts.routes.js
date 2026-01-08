@@ -5,7 +5,7 @@ const {
     createAccount,
     updateAccount,
     deleteAccount
-} = require("../controllers/accountsController");
+} = require("../controllers/accounts.controller");
 
 const router = express.Router();
 

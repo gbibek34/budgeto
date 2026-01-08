@@ -1,20 +1,4 @@
-const pool = require("../db");
-
-// Create a new user
-const createUser = async (req, res) => {
-    const { name, email } = req.body;
-    try {
-        const result = await pool.query(
-            `INSERT INTO users (name, email, created_at)
-             VALUES ($1, $2, NOW()) RETURNING *`,
-            [name, email]
-        );
-        res.json(result.rows[0]);
-    } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Server error" });
-    }
-};
+const pool = require("../database/db");
 
 // Get all users
 const getUsers = async (req, res) => {
@@ -86,7 +70,6 @@ const deleteUser = async (req, res) => {
 };
 
 module.exports = {
-    createUser,
     getUsers,
     getUserById,
     updateUser,

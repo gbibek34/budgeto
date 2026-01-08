@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../database/db");
 
 // Helper to update and return all accounts for a user
 async function getUserAccounts(user_id) {

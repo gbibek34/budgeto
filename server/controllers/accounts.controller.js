@@ -1,5 +1,5 @@
-const pool = require("../db");
-const prisma = require("../prismaexp")
+const pool = require("../database/db");
+const prisma = require("../config/prisma")
 
 // Create a new account
 // const createAccount = async (req, res) => {
@@ -20,7 +20,7 @@ const prisma = require("../prismaexp")
 //     }
 // };
 
-console.log(Object.keys(prisma));
+// console.log(Object.keys(prisma));
 // console.log(prisma);
 const createAccount = async (req, res) => {
     const { user_id, name, account_type, balance } = req.body;

@@ -5,7 +5,7 @@ const {
     getTransactionById,
     updateTransaction,
     deleteTransaction
-} = require("../controllers/transactionsController");
+} = require("../controllers/transactions.controller");
 
 const router = express.Router();
 

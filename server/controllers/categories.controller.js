@@ -1,4 +1,4 @@
-const pool = require("../db");
+const pool = require("../database/db");
 
 // Create a new category
 const createCategory = async (req, res) => {

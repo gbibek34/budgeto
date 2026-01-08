@@ -7,7 +7,6 @@ client/dist/
 client/.vite/
 server/dist/
 server/build/
-server/generated/prisma
 
 # Logs
 *.log
