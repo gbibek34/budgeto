@@ -6,7 +6,7 @@ const register = async (req, res) => {
         const { email, username, password, cpassword } = req.body;
 
         if (!email, !username, !password, !cpassword) {
-            return res.status(400).json({ message: "Validation Failed!", error: "Add all required fields" })
+            return res.status(400).json({ message: "Validation Failed!", error: "Missing required fields" })
         } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(email)) {
             return res.status(400).json({ message: "Validation Failed!", error: "Invalid email" })
         } else if (password !== cpassword) {

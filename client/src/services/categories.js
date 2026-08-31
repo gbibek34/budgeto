@@ -7,9 +7,11 @@ export const createCategory = async (data) => {
 };
 
 // Get all categories for a user
-export const getCategories = async (user_id) => {
-    const res = await api.get("/categories", { params: { user_id } });
-    return res.data;
+export async function getCategories(user_id) {
+    const response = await api.get("/categories", {
+        params: { user_id }
+    });
+    return response.data;
 };
 
 // Get a category by ID

@@ -1,66 +1,48 @@
 const pool = require("../database/db");
 const prisma = require("../config/prisma")
 
-// Create a new account
-// const createAccount = async (req, res) => {
-//     const { user_id, name, account_type, balance } = req.body;
-//     if (!user_id || !name || !account_type) {
-//         return res.status(400).json({ error: "Missing required fields" });
-//     }
-//     try {
-//         const result = await pool.query(
-//             `INSERT INTO accounts (user_id, name, account_type, balance, created_at)
-//              VALUES ($1, $2, $3, $4, NOW()) RETURNING *`,
-//             [user_id, name, account_type, balance]
-//         );
-//         res.json(result.rows[0]);
-//     } catch (err) {
-//         console.error(err.message);
-//         res.status(500).json({ error: "Server error" });
-//     }
-// };
-
 // console.log(Object.keys(prisma));
 // console.log(prisma);
+
 const createAccount = async (req, res) => {
-    const { user_id, name, account_type, balance } = req.body;
+    const user_id = req.userInfo.user_id
+    const { account_name, account_type, balance } = req.body
 
     // Basic validation
-    if (!user_id || !name || !account_type) {
-        return res.status(400).json({ error: "Missing required fields" });
+    if (!account_name || !account_type || !balance) {
+        return res.status(400).json({ message: "Validation Failed!", error: "Missing required fields" })
+    } else if (account_type != "checking" && account_type != "savings") {
+        return res.status(400).json({ message: "Validation Failed!", error: "Enter a valid account type" })
     }
 
     try {
         const account = await prisma.accounts.create({
             data: {
                 user_id,
-                name,
+                account_name,
                 account_type,
-                // balance is optional in your schema
-                ...(balance !== undefined && { balance }),
-                // created_at is auto-handled by Prisma
-            },
-        });
+                balance
+            }
+        })
 
-        res.status(201).json(account);
+        res.status(201).json({ message: "Account Created!", account })
     } catch (err) {
         console.error("Create account error:", err);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err })
     }
-};
+}
 
 // Get all accounts for a user
 const getAccounts = async (req, res) => {
-    const { user_id } = req.query;
+    const user_id = req.userInfo.user_id;
     try {
-        const result = await pool.query(
-            "SELECT * FROM accounts WHERE user_id = $1 ORDER BY account_id",
-            [user_id]
-        );
-        res.json(result.rows);
+        const result = await prisma.accounts.findMany({
+            where: { user_id: user_id }
+        })
+        res.json(result);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        console.error("Create account error:", err.message);
+        res.status(500).json({ error: err });
     }
 };
 
@@ -68,38 +50,39 @@ const getAccounts = async (req, res) => {
 const getAccountById = async (req, res) => {
     const { account_id } = req.params;
     try {
-        const result = await pool.query(
-            "SELECT * FROM accounts WHERE account_id = $1",
-            [account_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.accounts.findUnique({
+            where: { account_id: account_id }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Account not found" });
         }
-        res.json(result.rows[0]);
+        res.json(result);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err });
     }
 };
 
 // Update an account
 const updateAccount = async (req, res) => {
     const { account_id } = req.params;
-    const { name, account_type, balance } = req.body;
-    console.log(account_id)
+    const { account_name, account_type, balance } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE accounts SET name = $1, account_type = $2, balance = $3
-             WHERE account_id = $4 RETURNING *`,
-            [name, account_type, balance, account_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.accounts.update({
+            where: { account_id: account_id },
+            data: {
+                account_name,
+                account_type,
+                balance
+            }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Account not found" });
         }
-        res.json(result.rows[0]);
+        res.json(result);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err });
     }
 };
 
@@ -107,17 +90,16 @@ const updateAccount = async (req, res) => {
 const deleteAccount = async (req, res) => {
     const { account_id } = req.params;
     try {
-        const result = await pool.query(
-            "DELETE FROM accounts WHERE account_id = $1 RETURNING *",
-            [account_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.accounts.delete({
+            where: { account_id: account_id }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Account not found" });
         }
-        res.json({ message: "Account deleted", account: result.rows[0] });
+        res.json({ message: "Account deleted", account: result });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err });
     }
 };
 

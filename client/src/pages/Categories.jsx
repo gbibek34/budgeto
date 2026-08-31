@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import DashLayout from "../layouts/DashLayout";
 import Modal from "../components/Modal";
+import { useAuth } from "../context/AuthContext";
 import {
     getCategories,
     createCategory,
@@ -9,8 +10,8 @@ import {
 } from "../services/categories";
 
 const emptyForm = {
-    name: "",
-    category_type: "expense",
+    transaction_type_id: 2,
+    category_name: "",
     is_fixed: false,
     parent_category_id: "",
 };
@@ -19,7 +20,7 @@ const sortCategories = (categories, sortBy, sortOrder) => {
     return [...categories].sort((a, b) => {
         let valA = a[sortBy];
         let valB = b[sortBy];
-        if (sortBy === "name") {
+        if (sortBy === "category_name") {
             valA = valA?.toLowerCase() || "";
             valB = valB?.toLowerCase() || "";
         }
@@ -30,6 +31,8 @@ const sortCategories = (categories, sortBy, sortOrder) => {
 };
 
 const Categories = () => {
+    const { user } = useAuth();
+    const userId = user?.user_id
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -37,11 +40,10 @@ const Categories = () => {
     const [form, setForm] = useState(emptyForm);
     const [editingCategoryId, setEditingCategoryId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
-    const userId = 1; // Replace with actual user id
 
     // Sorting state for each table
-    const [incomeSort, setIncomeSort] = useState({ sortBy: "name", sortOrder: "asc" });
-    const [expenseSort, setExpenseSort] = useState({ sortBy: "name", sortOrder: "asc" });
+    const [incomeSort, setIncomeSort] = useState({ sortBy: "category_name", sortOrder: "asc" });
+    const [expenseSort, setExpenseSort] = useState({ sortBy: "category_name", sortOrder: "asc" });
 
     useEffect(() => {
         fetchData();
@@ -59,9 +61,9 @@ const Categories = () => {
         }
     }
 
-    function openAddModal(type = "expense") {
+    function openAddModal(type = 2) {
         setModalMode("add");
-        setForm({ ...emptyForm, category_type: type });
+        setForm({ ...emptyForm, transaction_type_id: type });
         setEditingCategoryId(null);
         setIsModalOpen(true);
     }
@@ -70,8 +72,8 @@ const Categories = () => {
         setModalMode("edit");
         setEditingCategoryId(category.category_id);
         setForm({
-            name: category.name || "",
-            category_type: category.category_type || "expense",
+            transaction_type_id: category.transaction_type_id || 2,
+            category_name: category.category_name || "",
             is_fixed: !!category.is_fixed,
             parent_category_id: category.parent_category_id || "",
         });
@@ -99,14 +101,14 @@ const Categories = () => {
         try {
             const payload = {
                 user_id: userId,
-                name: (form.name || "").trim(),
-                category_type: form.category_type,
+                transaction_type_id: Number(form.transaction_type_id),
+                category_name: (form.category_name || "").trim(),
                 is_fixed: !!form.is_fixed,
-                parent_category_id: form.parent_category_id === "" ? null : Number(form.parent_category_id),
+                parent_category_id: form.parent_category_id === "" ? null : form.parent_category_id,
             };
 
-            if (!payload.name) {
-                alert("Name is required");
+            if (!payload.category_name) {
+                alert("Category name is required");
                 return;
             }
 
@@ -162,7 +164,7 @@ const Categories = () => {
             <React.Fragment key={cat.category_id}>
                 <tr className={level === 0 ? "bg-gray-50" : ""}>
                     <td className="py-2 px-3 w-full" style={{ paddingLeft: `${1 + (level * 2)}rem` }}>
-                        {cat.name}
+                        {cat.category_name}
                     </td>
                     <td className="py-2 px-3 text-right">
                         <span className={`inline-block px-2 py-1 rounded text-xs ${cat.is_fixed ? "bg-green-100 text-green-700" : "bg-yellow-100 text-yellow-700"}`}>
@@ -173,14 +175,14 @@ const Categories = () => {
                         <button
                             onClick={() => openEditModal(cat)}
                             className="mr-2 px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
-                            aria-label={`Edit ${cat.name}`}
+                            aria-label={`Edit ${cat.category_name}`}
                         >
                             ✏️
                         </button>
                         <button
                             onClick={() => handleDelete(cat.category_id)}
                             className="px-2 py-1 rounded bg-gray-100 hover:bg-gray-200"
-                            aria-label={`Delete ${cat.name}`}
+                            aria-label={`Delete ${cat.category_name}`}
                         >
                             🗑️
                         </button>
@@ -192,8 +194,8 @@ const Categories = () => {
     }
 
     // Separate and sort categories
-    const incomeCategories = categories.filter((cat) => cat.category_type === "income");
-    const expenseCategories = categories.filter((cat) => cat.category_type === "expense");
+    const incomeCategories = categories.filter((cat) => cat.transaction_type_id === 1);
+    const expenseCategories = categories.filter((cat) => cat.transaction_type_id === 2);
 
     const sortedIncome = sortCategories(incomeCategories, incomeSort.sortBy, incomeSort.sortOrder);
     const sortedExpense = sortCategories(expenseCategories, expenseSort.sortBy, expenseSort.sortOrder);
@@ -203,7 +205,7 @@ const Categories = () => {
 
     // Sorting handlers
     const handleSort = (type, sortBy) => {
-        if (type === "income") {
+        if (type === 1) {
             setIncomeSort((prev) => ({
                 sortBy,
                 sortOrder: prev.sortBy === sortBy ? (prev.sortOrder === "asc" ? "desc" : "asc") : "asc",
@@ -230,7 +232,7 @@ const Categories = () => {
                     </div>
                     <div>
                         <button
-                            onClick={() => openAddModal("expense")}
+                            onClick={() => openAddModal(2)}
                             className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700"
                         >
                             + Add Category
@@ -247,9 +249,9 @@ const Categories = () => {
                                 <tr className="bg-gray-100 text-left">
                                     <th
                                         className="py-2 px-3 w-full cursor-pointer select-none"
-                                        onClick={() => handleSort("income", "name")}
+                                        onClick={() => handleSort("income", "category_name")}
                                     >
-                                        Name {sortIcon(incomeSort, "name")}
+                                        Name {sortIcon(incomeSort, "category_name")}
                                     </th>
                                     <th
                                         className="py-2 px-3 text-right cursor-pointer select-none whitespace-nowrap"
@@ -291,9 +293,9 @@ const Categories = () => {
                                 <tr className="bg-gray-100 text-left">
                                     <th
                                         className="py-2 px-3 w-full cursor-pointer select-none"
-                                        onClick={() => handleSort("expense", "name")}
+                                        onClick={() => handleSort("expense", "category_name")}
                                     >
-                                        Name {sortIcon(expenseSort, "name")}
+                                        Name {sortIcon(expenseSort, "category_name")}
                                     </th>
                                     <th
                                         className="py-2 px-3 text-right cursor-pointer select-none whitespace-nowrap"
@@ -335,28 +337,28 @@ const Categories = () => {
                 >
                     <form onSubmit={handleSave} className="space-y-4">
                         <div>
+                            <label className="block text-sm font-medium mb-1">Type</label>
+                            <select
+                                name="transaction_type_id"
+                                value={form.transaction_type_id}
+                                onChange={onChange}
+                                className="w-full border rounded px-3 py-2"
+                                disabled={modalMode === "edit"}
+                            >
+                                <option value="1">Income</option>
+                                <option value="2">Expense</option>
+                            </select>
+                        </div>
+                        <div>
                             <label className="block text-sm font-medium mb-1">Name</label>
                             <input
-                                name="name"
-                                value={form.name}
+                                name="category_name"
+                                value={form.category_name}
                                 onChange={onChange}
                                 required
                                 className="w-full border rounded px-3 py-2"
                                 placeholder="e.g. Food, Rent, Salary"
                             />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium mb-1">Type</label>
-                            <select
-                                name="category_type"
-                                value={form.category_type}
-                                onChange={onChange}
-                                className="w-full border rounded px-3 py-2"
-                                disabled={modalMode === "edit"}
-                            >
-                                <option value="income">Income</option>
-                                <option value="expense">Expense</option>
-                            </select>
                         </div>
                         <div>
                             <label className="inline-flex items-center">
@@ -383,11 +385,11 @@ const Categories = () => {
                                     .filter(
                                         (cat) =>
                                             cat.category_id !== editingCategoryId &&
-                                            cat.category_type === form.category_type // only allow same type as parent
+                                            cat.transaction_type_id === form.transaction_type_id // only allow same type as parent
                                     )
                                     .map((cat) => (
                                         <option key={cat.category_id} value={cat.category_id}>
-                                            {cat.name}
+                                            {cat.category_name}
                                         </option>
                                     ))}
                             </select>

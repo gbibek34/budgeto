@@ -1,4 +1,5 @@
 const express = require("express");
+const auth = require("../utils/auth")
 const {
     getAccounts,
     getAccountById,
@@ -9,10 +10,10 @@ const {
 
 const router = express.Router();
 
-router.get("/", getAccounts); // Get all accounts for a user (expects user_id in query)
-router.get("/:account_id", getAccountById); // Get a single account by account_id
-router.post("/", createAccount); // Create a new account
-router.put("/:account_id", updateAccount); // Update an account by account_id
-router.delete("/:account_id", deleteAccount); // Delete an account by account_id
+router.post("/", auth.verifyUser, createAccount); // Create a new account
+router.get("/", auth.verifyUser, getAccounts); // Get all accounts for a user (expects user_id in query)
+router.get("/:account_id", auth.verifyUser, getAccountById); // Get a single account by account_id
+router.put("/:account_id", auth.verifyUser, updateAccount); // Update an account by account_id
+router.delete("/:account_id", auth.verifyUser, deleteAccount); // Delete an account by account_id
 
 module.exports = router;

@@ -4,7 +4,7 @@ import dash from "../assets/Dash.png"
 const Hero = () => {
     const navigate = useNavigate();
     return (
-        <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-16 px-4 md:px-12">
+        <section className="flex flex-col-reverse md:flex-row items-center justify-between gap-10 py-15 px-4 md:px-12">
             {/* Text Section */}
             <div className="flex-1 flex flex-col items-start gap-6">
                 <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">

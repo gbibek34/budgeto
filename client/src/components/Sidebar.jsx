@@ -8,7 +8,8 @@ const navLinks = [
     { to: "/dashboard/categories", label: "Category", icon: "🌿" },
     { to: "/dashboard/transactions", label: "Transactions", icon: "💸" },
     { to: "/dashboard/budgets", label: "Budgets", icon: "📊" },
-    { to: "/dashboard/goals", label: "Saving Goals", icon: "🎯" }
+    { to: "/dashboard/goals", label: "Saving Goals", icon: "🎯" },
+    { to: "/logout", label: "Logout", icon: "📤" }
     // Add more links as needed
 ];
 

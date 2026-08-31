@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import DashLayout from "../layouts/DashLayout";
 import Modal from "../components/Modal";
+import { useAuth } from "../context/AuthContext";
 import {
     getAccounts,
     updateAccount,
@@ -8,9 +9,15 @@ import {
     createAccount
 } from "../services/accounts";
 
-const emptyForm = { name: "", account_type: "asset", balance: "" };
+const emptyForm = {
+    account_name: "",
+    account_type: "checking",
+    balance: ""
+};
 
 const Accounts = () => {
+    const { user } = useAuth();
+    const userId = user?.user_id
     const [accounts, setAccounts] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -18,7 +25,6 @@ const Accounts = () => {
     const [form, setForm] = useState(emptyForm);
     const [editingAccountId, setEditingAccountId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
-    const userId = 1;
 
     useEffect(() => {
         fetchData();
@@ -47,7 +53,7 @@ const Accounts = () => {
         setModalMode("edit");
         setEditingAccountId(account.account_id);
         setForm({
-            name: account.name || "",
+            account_name: account.account_name || "",
             account_type: account.account_type || "asset",
             balance: account.balance != null ? String(account.balance) : ""
         });
@@ -72,13 +78,13 @@ const Accounts = () => {
         try {
             const payload = {
                 user_id: userId,
-                name: (form.name || "").trim(),
+                account_name: (form.account_name || "").trim(),
                 account_type: form.account_type,
                 balance: form.balance === "" ? 0 : parseFloat(form.balance)
             };
 
-            if (!payload.name) {
-                alert("Name is required");
+            if (!payload.account_name) {
+                alert("Account name is required");
                 return;
             }
 
@@ -114,12 +120,12 @@ const Accounts = () => {
     }
 
     // map accounts by account_type
-    const assets = accounts.filter(a => a.account_type === "asset");
+    const checking = accounts.filter(a => a.account_type === "checking");
     const savings = accounts.filter(a => a.account_type === "savings");
     const liabilities = accounts.filter(a => a.account_type === "liability");
 
     const sum = list => list.reduce((s, a) => s + Number(a.balance || 0), 0);
-    const totalAssets = sum(assets);
+    const totalAssets = sum(checking);
     const totalSavings = sum(savings);
     const totalLiabilities = sum(liabilities);
     const netWorth = totalAssets + totalSavings - totalLiabilities;
@@ -162,27 +168,27 @@ const Accounts = () => {
                 <div className="flex flex-col xl:flex-row gap-6">
                     <section className="flex-1 bg-white p-5 rounded shadow">
                         <div className="text-lg font-bold mb-3">Assets</div>
-                        {assets.length === 0 ? (
+                        {checking.length === 0 ? (
                             <div className="text-sm text-gray-400">No asset accounts.</div>
                         ) : (
-                            assets.map(acc => (
+                            checking.map(acc => (
                                 <div key={acc.account_id} className="flex justify-between gap-2 items-center py-2 border-b last:border-b-0">
                                     <div className="flex flex-1 justify-between">
-                                        <div>{acc.name}</div>
+                                        <div>{acc.account_name}</div>
                                         <div className="font-medium">${Number(acc.balance || 0).toLocaleString()}</div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => openEditModal(acc)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Edit ${acc.name}`}
+                                            aria-label={`Edit ${acc.account_name}`}
                                         >
                                             ✏️
                                         </button>
                                         <button
                                             onClick={() => handleDelete(acc.account_id)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Delete ${acc.name}`}
+                                            aria-label={`Delete ${acc.account_name}`}
                                         >
                                             🗑️
                                         </button>
@@ -200,21 +206,21 @@ const Accounts = () => {
                             savings.map(acc => (
                                 <div key={acc.account_id} className="flex justify-between gap-2 items-center py-2 border-b last:border-b-0">
                                     <div className="flex flex-1 justify-between">
-                                        <div>{acc.name}</div>
+                                        <div>{acc.account_name}</div>
                                         <div className="font-medium">${Number(acc.balance || 0).toLocaleString()}</div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => openEditModal(acc)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Edit ${acc.name}`}
+                                            aria-label={`Edit ${acc.account_name}`}
                                         >
                                             ✏️
                                         </button>
                                         <button
                                             onClick={() => handleDelete(acc.account_id)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Delete ${acc.name}`}
+                                            aria-label={`Delete ${acc.account_name}`}
                                         >
                                             🗑️
                                         </button>
@@ -232,21 +238,21 @@ const Accounts = () => {
                             liabilities.map(acc => (
                                 <div key={acc.account_id} className="flex justify-between gap-2 items-center py-2 border-b last:border-b-0">
                                     <div className="flex flex-1 justify-between">
-                                        <div>{acc.name}</div>
+                                        <div>{acc.account_name}</div>
                                         <div className="font-medium">-${Number(acc.balance || 0).toLocaleString()}</div>
                                     </div>
                                     <div className="flex gap-2">
                                         <button
                                             onClick={() => openEditModal(acc)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Edit ${acc.name}`}
+                                            aria-label={`Edit ${acc.account_name}`}
                                         >
                                             ✏️
                                         </button>
                                         <button
                                             onClick={() => handleDelete(acc.account_id)}
                                             className="p-1 rounded bg-gray-100 hover:bg-gray-200"
-                                            aria-label={`Delete ${acc.name}`}
+                                            aria-label={`Delete ${acc.account_name}`}
                                         >
                                             🗑️
                                         </button>
@@ -267,8 +273,8 @@ const Accounts = () => {
                         <div>
                             <label className="block text-sm font-medium mb-1">Name</label>
                             <input
-                                name="name"
-                                value={form.name}
+                                name="account_name"
+                                value={form.account_name}
                                 onChange={onChange}
                                 required
                                 className="w-full border rounded px-3 py-2"
@@ -284,9 +290,8 @@ const Accounts = () => {
                                 onChange={onChange}
                                 className="w-full border rounded px-3 py-2"
                             >
-                                <option value="asset">Asset</option>
+                                <option value="checking">Checking</option>
                                 <option value="savings">Savings</option>
-                                <option value="liability">Liability</option>
                             </select>
                         </div>
 

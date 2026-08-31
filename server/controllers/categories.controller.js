@@ -1,33 +1,44 @@
 const pool = require("../database/db");
+const prisma = require("../config/prisma")
 
 // Create a new category
 const createCategory = async (req, res) => {
-    const { user_id, name, category_type, is_fixed, parent_category_id } = req.body;
+    const user_id = req.userInfo.user_id
+    const { transaction_type_id, category_name, is_fixed, parent_category_id } = req.body;
+
+    if (!transaction_type_id || !category_name) {
+        return res.status(400).json({ message: "Validation Failed!", error: "Missing required fields" })
+    }
+
     try {
-        const result = await pool.query(
-            `INSERT INTO categories (user_id, name, category_type, is_fixed, parent_category_id, created_at)
-             VALUES ($1, $2, $3, $4, $5, NOW()) RETURNING *`,
-            [user_id, name, category_type, is_fixed, parent_category_id]
-        );
-        res.json(result.rows[0]);
+        const category = await prisma.categories.create({
+            data: {
+                user_id,
+                transaction_type_id,
+                category_name,
+                is_fixed,
+                parent_category_id
+            }
+        })
+
+        res.status(201).json({ message: "Category Created!", category })
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        console.error("Create category error", err);
+        res.status(500).json({ error: err });
     }
 };
 
 // Get all categories for a user
 const getCategories = async (req, res) => {
-    const { user_id } = req.query;
+    const user_id = req.userInfo.user_id;
     try {
-        const result = await pool.query(
-            "SELECT * FROM categories WHERE user_id = $1 ORDER BY category_id",
-            [user_id]
-        );
-        res.json(result.rows);
+        const result = await prisma.categories.findMany({
+            where: { user_id: user_id }
+        })
+        res.json(result);
     } catch (err) {
-        console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        cconsole.error("Create account error:", err.message);
+        res.status(500).json({ error: err });
     }
 };
 
@@ -35,34 +46,37 @@ const getCategories = async (req, res) => {
 const getCategoryById = async (req, res) => {
     const { category_id } = req.params;
     try {
-        const result = await pool.query(
-            "SELECT * FROM categories WHERE category_id = $1",
-            [category_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.categories.findUnique({
+            where: { category_id: category_id }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Category not found" });
         }
-        res.json(result.rows[0]);
+        res.json(result);
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err });
     }
 };
 
 // Update a category
 const updateCategory = async (req, res) => {
     const { category_id } = req.params;
-    const { name, category_type, is_fixed, parent_category_id } = req.body;
+    const { transaction_type_id, category_name, is_fixed, parent_category_id } = req.body;
     try {
-        const result = await pool.query(
-            `UPDATE categories SET name = $1, category_type = $2, is_fixed = $3, parent_category_id = $4
-             WHERE category_id = $5 RETURNING *`,
-            [name, category_type, is_fixed, parent_category_id, category_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.categories.update({
+            where: { category_id: category_id },
+            data: {
+                transaction_type_id,
+                category_name,
+                is_fixed,
+                parent_category_id
+            }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Category not found" });
         }
-        res.json(result.rows[0]);
+        res.json(result);
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ error: "Server error" });
@@ -73,17 +87,16 @@ const updateCategory = async (req, res) => {
 const deleteCategory = async (req, res) => {
     const { category_id } = req.params;
     try {
-        const result = await pool.query(
-            "DELETE FROM categories WHERE category_id = $1 RETURNING *",
-            [category_id]
-        );
-        if (result.rows.length === 0) {
+        const result = await prisma.categories.delete({
+            where: { category_id: category_id }
+        })
+        if (result.length === 0) {
             return res.status(404).json({ error: "Category not found" });
         }
-        res.json({ message: "Category deleted", category: result.rows[0] });
+        res.json({ message: "Category deleted", category: result });
     } catch (err) {
         console.error(err.message);
-        res.status(500).json({ error: "Server error" });
+        res.status(500).json({ error: err });
     }
 };
 
