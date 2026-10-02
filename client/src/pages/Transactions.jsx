@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DashLayout from "../layouts/DashLayout";
 import Modal from "../components/Modal";
+import { useAuth } from "../context/AuthContext";
 import {
     getTransactions,
     createTransaction,
@@ -11,18 +12,25 @@ import { getAccounts } from "../services/accounts";
 import { getCategories } from "../services/categories";
 
 const emptyForm = {
-    transaction_type: "expense",
+    transaction_type_id: 2,
     source_account_id: "",
     target_account_id: "",
+    debt_id: "",
+    goal_id: "",
     category_id: "",
     amount: "",
-    description: "",
-    transaction_date: "",
+    transaction_title: "",
+    transaction_description: "",
+    transaction_date: ""
 };
 
 const Transactions = () => {
+    const { user } = useAuth()
+    const userId = user?.user_id
     const [transactions, setTransactions] = useState([]);
     const [accounts, setAccounts] = useState([]);
+    const [debts, setDebts] = useState([])
+    const [goals, setGoals] = useState([])
     const [categories, setCategories] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,13 +38,8 @@ const Transactions = () => {
     const [form, setForm] = useState(emptyForm);
     const [editingId, setEditingId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
-    const userId = 1; // Replace with actual user id
 
-    useEffect(() => {
-        fetchAll();
-    }, [userId]);
-
-    async function fetchAll() {
+    const fetchAll = useCallback(async () => {
         setLoading(true);
         try {
             const [txs, accs, cats] = await Promise.all([
@@ -52,14 +55,18 @@ const Transactions = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [userId])
 
-    function openAddModal(type = "expense") {
+    useEffect(() => {
+        fetchAll();
+    }, [fetchAll]);
+
+    function openAddModal(type = 2) {
         setModalMode("add");
         setEditingId(null);
         setForm({
             ...emptyForm,
-            transaction_type: type,
+            transaction_type_id: type,
             transaction_date: new Date().toISOString().slice(0, 10),
         });
         setIsModalOpen(true);
@@ -69,7 +76,7 @@ const Transactions = () => {
         setModalMode("edit");
         setEditingId(tx.transaction_id);
         setForm({
-            transaction_type: tx.transaction_type,
+            transaction_type_id: tx.transaction_type_id || 2,
             source_account_id: tx.source_account_id || "",
             target_account_id: tx.target_account_id || "",
             category_id: tx.category_id || "",

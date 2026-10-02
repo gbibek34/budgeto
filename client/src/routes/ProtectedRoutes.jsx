@@ -1,20 +1,24 @@
 import { Navigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
+import { useAuth } from "../features/auth/AuthContext";
 
 export const LoggedInRoute = ({ children }) => {
     const { user, loading } = useAuth();
-    if (loading) return null; // or a spinner
-    if (!user) {
-        return <Navigate to="/login" replace />
+    if (loading) {
+        return <div>Loading...</div>; // or a spinner
     }
-    return children;
+    if (user) {
+        return children;
+    }
+    return <Navigate to="/login" replace />
 };
 
 export const LoggedOutRoute = ({ children }) => {
     const { user, loading } = useAuth();
-    if (loading) return null; // or a spinner
-    if (user) {
-        return <Navigate to="/dashboard/" replace />
+    if (loading) {
+        return <div>Loading...</div>; // or a spinner
     }
-    return children;
+    if (!user) {
+        return children;
+    }
+    return <Navigate to="/dashboard/" replace />
 };

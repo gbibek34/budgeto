@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import DashLayout from "../layouts/DashLayout";
 import Modal from "../components/Modal";
 import { useAuth } from "../context/AuthContext";
@@ -45,11 +45,7 @@ const Categories = () => {
     const [incomeSort, setIncomeSort] = useState({ sortBy: "category_name", sortOrder: "asc" });
     const [expenseSort, setExpenseSort] = useState({ sortBy: "category_name", sortOrder: "asc" });
 
-    useEffect(() => {
-        fetchData();
-    }, [userId]);
-
-    async function fetchData() {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const cats = await getCategories(userId);
@@ -59,7 +55,11 @@ const Categories = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [userId])
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     function openAddModal(type = 2) {
         setModalMode("add");

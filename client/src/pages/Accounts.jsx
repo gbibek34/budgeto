@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import DashLayout from "../layouts/DashLayout";
 import Modal from "../components/Modal";
 import { useAuth } from "../context/AuthContext";
@@ -26,11 +26,7 @@ const Accounts = () => {
     const [editingAccountId, setEditingAccountId] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
 
-    useEffect(() => {
-        fetchData();
-    }, [userId]);
-
-    async function fetchData() {
+    const fetchData = useCallback(async () => {
         setLoading(true);
         try {
             const accs = await getAccounts(userId);
@@ -40,7 +36,11 @@ const Accounts = () => {
         } finally {
             setLoading(false);
         }
-    }
+    }, [userId])
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
 
     function openAddModal() {
         setModalMode("add");
